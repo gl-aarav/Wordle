@@ -1,5 +1,6 @@
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -94,12 +95,22 @@ public class Wordle {
 	 * THIS METHOD IS INCOMPLETE.
 	 */
 	public static void main(String[] args) {
-		String testWord = new String("");
-		String showIt = new String("");
+		String testWord = "";
+		String showIt = "";
 
 		// Determines if args[0] and args[1] are set
 		// args[0] is "show" which means to show the word chosen
 		// args[1] is a word which is used as the chosen word
+		if (args.length > 0) {
+			if (args[0].equalsIgnoreCase("show")) {
+				showIt = "show";
+				if (args.length > 1) {
+					testWord = args[1];
+				}
+			} else {
+				testWord = args[0];
+			}
+		}
 
 		Wordle run = new Wordle(showIt, testWord);
 		run.setUpCanvas();
@@ -149,9 +160,20 @@ public class Wordle {
 	 *         THIS METHOD IS INCOMPLETE.
 	 */
 	public String openFileAndChooseWord(String inFileName, String testWord) {
-		String result = "SMART";
+		List<String> goalWords = FileUtils.readWordsFromFile(inFileName);
+		List<String> allowedWords = FileUtils.readWordsFromFile(WORDS5_ALLOWED);
+		String chosenWord;
 
-		return result;
+		if (!testWord.isEmpty() && FileUtils.wordExistsInList(testWord, allowedWords)) {
+			chosenWord = testWord.toUpperCase();
+		} else {
+			chosenWord = FileUtils.chooseRandomWord(goalWords);
+		}
+
+		if (show) {
+			System.out.println("The goal word is: " + chosenWord);
+		}
+		return chosenWord;
 	}
 
 	/**
@@ -164,8 +186,8 @@ public class Wordle {
 	 *         THIS METHOD IS INCOMPLETE.
 	 */
 	public boolean inAllowedWordFile(String possibleWord) {
-
-		return false;
+		List<String> allowedWords = FileUtils.readWordsFromFile(WORDS5_ALLOWED);
+		return FileUtils.wordExistsInList(possibleWord, allowedWords);
 	}
 
 	/**
@@ -180,18 +202,43 @@ public class Wordle {
 	public void processGuess() {
 		letters = letters.toUpperCase();
 
-		// if guess is in words5allowed.txt then put into guess list
-		int guessNumber = 0;
-		for (int i = 0; i < wordGuess.length; i++) {
-			if (wordGuess[i].length() == 5) {
-				guessNumber = i + 1;
+		if (inAllowedWordFile(letters)) {
+			// if guess is in words5allowed.txt then put into guess list
+			int guessNumber = 0;
+			for (int i = 0; i < wordGuess.length; i++) {
+				if (wordGuess[i].length() == 5) {
+					guessNumber = i + 1;
+				}
+			}
+			wordGuess[guessNumber] = letters;
+			letters = "";
+		} else {
+			// else if guess is not in words5allowed.txt then print dialog box
+			JOptionPane pane = new JOptionPane("Not in word list");
+			JDialog d = pane.createDialog(null, "Invalid Guess");
+			d.setLocation(365, 250);
+			d.setVisible(true);
+			letters = ""; // Clear the invalid guess
+		}
+
+	}
+
+	/**
+	 * Updates the color status of a key on the virtual keyboard.
+	 * 
+	 * @param letter      The character representing the key to update.
+	 * @param colorStatus The new color status (1: no match, 2: partial, 3: exact).
+	 */
+	private void updateKeyboardColor(char letter, int colorStatus) {
+		for (int i = 0; i < Constants.KEYBOARD.length; i++) {
+			if (Constants.KEYBOARD[i].charAt(0) == letter) {
+				// Only update if the new status is "better" (green > yellow > dark gray)
+				if (colorStatus > keyBoardColors[i]) {
+					keyBoardColors[i] = colorStatus;
+				}
+				return;
 			}
 		}
-		wordGuess[guessNumber] = letters.toUpperCase();
-		letters = "";
-
-		// else if guess is not in words5allowed.txt then print dialog box
-
 	}
 
 	/**
@@ -208,11 +255,37 @@ public class Wordle {
 		// draw guessed letter backgrounds
 
 		for (int row = 0; row < 6; row++) {
-			for (int col = 0; col < 5; col++) {
-				if (wordGuess[row].length() != 0) // THIS METHOD IS INCOMPLETE.
-				{
-					StdDraw.picture(209 + col * 68, 650 - row * 68, "letterFrameDarkGray.png");
-				} else {
+			if (wordGuess[row].length() == 5) {
+				String currentGuess = wordGuess[row];
+				String tempWord = word; // Use a temporary word to handle duplicate letters correctly
+
+				// First pass for exact matches (green)
+				for (int col = 0; col < 5; col++) {
+					if (currentGuess.charAt(col) == tempWord.charAt(col)) {
+						StdDraw.picture(209 + col * 68, 650 - row * 68, "letterFrameGreen.png");
+						updateKeyboardColor(currentGuess.charAt(col), 3); // 3 for exact match
+						tempWord = tempWord.substring(0, col) + ' ' + tempWord.substring(col + 1); // Mark as used
+					}
+				}
+
+				// Second pass for partial matches (yellow) and no matches (dark gray)
+				for (int col = 0; col < 5; col++) {
+					char guessChar = currentGuess.charAt(col);
+					if (currentGuess.charAt(col) == word.charAt(col)) {
+						// Already handled in the first pass, skip
+						continue;
+					} else if (tempWord.indexOf(guessChar) != -1) {
+						StdDraw.picture(209 + col * 68, 650 - row * 68, "letterFrameYellow.png");
+						updateKeyboardColor(guessChar, 2); // 2 for partial match
+						tempWord = tempWord.substring(0, tempWord.indexOf(guessChar)) + ' '
+								+ tempWord.substring(tempWord.indexOf(guessChar) + 1); // Mark as used
+					} else {
+						StdDraw.picture(209 + col * 68, 650 - row * 68, "letterFrameDarkGray.png");
+						updateKeyboardColor(guessChar, 1); // 1 for no match
+					}
+				}
+			} else {
+				for (int col = 0; col < 5; col++) {
 					StdDraw.picture(209 + col * 68, 650 - row * 68, "letterFrame.png");
 				}
 			}
@@ -224,18 +297,28 @@ public class Wordle {
 		StdDraw.picture(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - 30, "wordle.png");
 
 		// draw keyboard with appropriate colors
-		StdDraw.setPenColor(StdDraw.LIGHT_GRAY);
 		int place = 0;
-		String tempWord = "";
 		for (int[] pair : Constants.KEYPLACEMENT) {
-			if (place == 19 || place == 27 || place == 28) {
-				StdDraw.picture(pair[0], pair[1], "keyBackgroundBig.png");
+			String keyImage = "keyBackground.png";
+			if (place == 19 || place == 27 || place == 28) { // ENTER, BACKSPACE, RESET
+				keyImage = "keyBackgroundBig.png";
+			} else {
+				switch (keyBoardColors[place]) {
+					case 1: // No match
+						keyImage = "keyBackgroundDarkGray.png";
+						break;
+					case 2: // Partial match
+						keyImage = "keyBackgroundYellow.png";
+						break;
+					case 3: // Exact match
+						keyImage = "keyBackgroundGreen.png";
+						break;
+					default: // Not checked yet (light gray)
+						keyImage = "keyBackground.png";
+						break;
+				}
 			}
-			// This needs to be modified a great deal,
-			// so that the correct colors show up.
-			else {
-				StdDraw.picture(pair[0], pair[1], "keyBackground.png");
-			}
+			StdDraw.picture(pair[0], pair[1], keyImage);
 			StdDraw.setPenColor(StdDraw.BLACK);
 			StdDraw.text(pair[0], pair[1], Constants.KEYBOARD[place]);
 			place++;
@@ -302,6 +385,20 @@ public class Wordle {
 		}
 
 		// else if all guesses are filled then declare loser
+		int filledGuesses = 0;
+		for (String guess : wordGuess) {
+			if (guess.length() == 5) {
+				filledGuesses++;
+			}
+		}
+
+		if (filledGuesses == 6 && !lastWord.equals(word)) {
+			activeGame = false;
+			JOptionPane pane = new JOptionPane("The word was " + word + ". Press RESET to begin again");
+			JDialog d = pane.createDialog(null, "YOU LOST!");
+			d.setLocation(365, 250);
+			d.setVisible(true);
+		}
 
 	}
 
