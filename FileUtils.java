@@ -60,11 +60,11 @@ public class FileUtils {
 	public static List<String> readWordsFromFile(String fileName) {
 		List<String> words = new ArrayList<>();
 		Scanner input = openToRead(fileName);
-		
+
 		while (input.hasNext()) {
 			words.add(input.next().toUpperCase());
 		}
-		
+
 		input.close();
 		return words;
 	}
@@ -72,7 +72,7 @@ public class FileUtils {
 	/**
 	 * Checks if a word exists in the given list (case-insensitive)
 	 * 
-	 * @param word the word to search for
+	 * @param word     the word to search for
 	 * @param wordList the list of words to search in
 	 * @return true if the word exists in the list, false otherwise
 	 */
