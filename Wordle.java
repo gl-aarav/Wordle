@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
  *
  * Provide a description here.
  *
- * @author Scott DeRuiter and David Greenstein and YOUR NAME HERE
+ * @author Scott DeRuiter and David Greenstein and Aarav Goyal
  * @version 1.0
  * @since
  */
