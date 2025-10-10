@@ -19,7 +19,6 @@ public class Wordle {
     /**
      * This is a complete list of fields for the game
      */
-
     /**
      * A String to store the word that the player is trying to find.
      */
@@ -67,6 +66,8 @@ public class Wordle {
      * Creates a Wordle object. A constructor. Initializes all of the variables
      * by calling the method initAll.
      *
+     * @param showIt if this String is "show", then the field variable show is
+     * set to true.
      * @param testWord if this String is found in words5allowed.txt, it will be
      * used to set word. This method is complete.
      */
@@ -102,6 +103,9 @@ public class Wordle {
      * The main method, to run the program. The constructor is called, so that
      * all of the fields are initialized. The canvas is set up, and the GUI (the
      * game of Wordle) runs. THIS METHOD IS INCOMPLETE.
+     *
+     * @param args Command line arguments. args[0] is "show" which means to show
+     * the word chosen. args[1] is a word which is used as the chosen
      */
     public static void main(String[] args) {
         String testWord = "";
@@ -189,8 +193,7 @@ public class Wordle {
      * otherwise.
      *
      * @param possibleWord the word to looked for in words5allowed.txt
-     * @return true if the word is in the text file, false otherwise THIS METHOD
-     * IS INCOMPLETE.
+     * @return true if the word is in the file, false otherwise.
      */
     public boolean inAllowedWordFile(String possibleWord) {
         List<String> allowedWords = FileUtils.readWordsFromFile(WORDS5_ALLOWED);
