@@ -102,7 +102,7 @@ public class Wordle {
     /**
      * The main method, to run the program. The constructor is called, so that
      * all of the fields are initialized. The canvas is set up, and the GUI (the
-     * game of Wordle) runs. THIS METHOD IS INCOMPLETE.
+     * game of Wordle) runs.
      *
      * @param args Command line arguments. args[0] is "show" which means to show
      * the word chosen. args[1] is a word which is used as the chosen
@@ -168,7 +168,7 @@ public class Wordle {
      * chosen from it.
      * @param testWord if this String is found in words5allowed.txt, it will be
      * used to set word.
-     * @return the word chosen as the "goal word". THIS METHOD IS INCOMPLETE.
+     * @return the word chosen as the "goal word".
      */
     public String openFileAndChooseWord(String inFileName, String testWord) {
         List<String> goalWords = FileUtils.readWordsFromFile(inFileName);
@@ -206,7 +206,7 @@ public class Wordle {
      * to be checked against the words in words5allowed.txt. The method
      * inAllowedWordFile will be called for this task. If the guess in letters
      * does not exist in the text file, a message is displayed to the user in
-     * the form of a JOptionPane with JDialog. THIS METHOD IS INCOMPLETE.
+     * the form of a JOptionPane with JDialog.
      */
     public void processGuess() {
         letters = letters.toUpperCase();
@@ -255,7 +255,7 @@ public class Wordle {
      * Draws the entire game panel. This includes the guessed words, the current
      * word being guessed, and all of the letters in the "keyboard" at the
      * bottom of the gameboard. The correct colors will need to be chosen for
-     * every letter. THIS METHOD IS INCOMPLETE.
+     * every letter.
      */
     public void drawPanel() {
         StdDraw.clear(StdDraw.WHITE);
@@ -372,7 +372,7 @@ public class Wordle {
      * user enters the correct word with a guess. The game is lost when the user
      * does not enter the correct word with the last (6th) guess. An appropriate
      * message is displayed to the user in the form of a JOptionPane with
-     * JDialog for a win or a loss. THIS METHOD IS INCOMPLETE.
+     * JDialog for a win or a loss.
      */
     public void checkIfWonOrLost() {
         String lastWord = "";
